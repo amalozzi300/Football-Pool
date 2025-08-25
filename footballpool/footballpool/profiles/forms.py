@@ -2,7 +2,7 @@ from django.contrib.auth.forms import UserCreationForm, UsernameField
 from django.contrib.auth.models import User
 from django.forms import ModelForm, CharField, EmailField
 
-from profiles.models import Profile
+from footballpool.profiles.models import Profile
 
 
 class CustomUserCreationForm(UserCreationForm):
