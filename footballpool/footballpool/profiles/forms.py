@@ -1,19 +1,29 @@
 from django.contrib.auth.forms import UserCreationForm, UsernameField
 from django.contrib.auth.models import User
-from django.forms import ModelForm, CharField, EmailField
+from django.forms import ModelForm, CharField, EmailField, ValidationError
 
 from footballpool.profiles.models import Profile
 
 
-class CustomUserCreationForm(UserCreationForm):
+class RegisterUserForm(UserCreationForm):
     class Meta:
         model = User
         fields = [
-            'email',
             'username',
+            'first_name',
+            'last_name',
+            'email',
             'password1',
             'password2',
         ]
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        if User.objects.filter(email=email).exists():
+            raise ValidationError('A profile with this email already exists.')
+    
+        return email
 
 class ProfileForm(ModelForm):
     username = UsernameField(label='Username')
@@ -42,15 +52,18 @@ class ProfileForm(ModelForm):
         self.fields['first_name'].initial = self.instance.user.first_name
         self.fields['last_name'].initial = self.instance.user.last_name
         self.fields['email'].initial = self.instance.user.email
+        self.order_fields(self.Meta.field_order)
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        instance.user.username = self.cleaned_data.get('username')
-        instance.user.first_name = self.cleaned_data.get('first_name')
-        instance.user.last_name = self.cleaned_data.get('last_name')
-        instance.user.email = self.cleaned_data.get('email')
+        user = instance.user
+        user.username = self.cleaned_data.get('username')
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
+        user.email = self.cleaned_data.get('email')
 
         if commit:
+            user.save()
             instance.save()
 
         return instance

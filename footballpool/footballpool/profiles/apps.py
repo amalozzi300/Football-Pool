@@ -7,3 +7,5 @@ class ProfilesConfig(AppConfig):
 
     def ready(self):
         import footballpool.profiles.signals
+        
+        super().ready()

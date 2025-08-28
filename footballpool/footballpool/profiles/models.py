@@ -30,6 +30,10 @@ class Profile(models.Model):
     def is_paid(self):
         return bool(self.payment_method)
     
+    @property
+    def is_completed_profile(self):
+        return self.phone_number and self.street_address and self.city and self.state and self.zip_code
+    
     def __str__(self):
         if self.user.first_name and self.user.last_name:
             return f'{self.user.first_name} {self.user.last_name}'
